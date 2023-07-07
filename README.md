@@ -14,17 +14,20 @@ RedisCacheExistsAttribute 實作，與套用到 controller 上，如果存在就
 
 這邊考量是萬一更新資料庫的人沒有管理 Redis 的權限，更新 DB 資料後 Redis 刪除 key 的工作沒有提供 API，所以設定兩小時過期可以避免無法刪除緩存的情況發生。
 但正常一點的使用方式應該要是不能直接透過 DB 新增資料，規定一定透過 API 來執行 CRUD 的動作:
-1. Create(此範例還沒實作)
+1. Create(CreateCountryAsync)
 新增 DB 該資料表項目的 API。(新增後要刪掉 GetCountryAsync 的 redis key/value)。
 
-2. Read
+2. Read(GetCountryAsync)
 取得 DB 該資料表項目的 API。透過 Attribute 檢查是否已有緩存(如下 redis 緩存狀態圖示)，若有則到 Atrribute 內執行從 Redis 取值的動作，若無則新增 GetCountryAsync 的 redis key/value。
 
-3. Update(此範例還沒實作)
+3. Update(UpdateCountryAsync)
 更新 DB 該資料表項目的 API。(更新後要刪掉 GetCountryAsync 的 redis key/value)。
 
-4. Delete(此範例還沒實作)
+4. Delete(DeleteCountryAsync)
 刪除 DB 該資料表項目的 API。(刪除後要刪掉 GetCountryAsync 的 redis key/value)。
+
+![image](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/6fb17f60-e9a5-4b85-8269-fea9b095ffd5)
+
 
 ### CUD 三個都要刪掉 GetCountryAsync 的 redis key/value
 
@@ -97,4 +100,7 @@ Controller 設定可以參考這個地方
 
 # mysql world DB
 ![image](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/5e30a4a2-bb37-4f41-8acd-274be134739e)
+
+# API 提升效能的方法
+![upload_4cd20cd0a99414d9783cb9544f50720b](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/ff99d93b-98af-49c5-877e-bf10f7a85dc5)
 
