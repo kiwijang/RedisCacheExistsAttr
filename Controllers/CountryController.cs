@@ -22,6 +22,13 @@ public class CountryController : ControllerBase
     [RedisCacheExists(CacheKey = "GetCountryAsync")]
     public async Task<IEnumerable<string>> Get()
     {
-        return await this._myService.GetCountryAsync("GetCountryAsync");
+        var cacheKey = "GetCountryAsync";
+        // 快取存在
+        if ((bool)(HttpContext.Items["IsRedisKeyExists"] ?? false))
+        {
+            return await this._myService.GetCacheDataByKey(cacheKey);
+        }
+        // 快取不存在
+        return await this._myService.GetCountryAsync(cacheKey);
     }
 }

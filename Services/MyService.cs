@@ -9,6 +9,7 @@ namespace dooo.Services
     public interface IMyService
     {
         Task<IEnumerable<string>> GetCountryAsync(string apiKey);
+        Task<IEnumerable<string>> GetCacheDataByKey(string apiKey);
     }
 
     public class MyService : IMyService
@@ -29,6 +30,24 @@ namespace dooo.Services
             // 設定到 redis
             await this._setToRedisAsync(result, apiKey);
             return result;
+        }
+
+        /// <summary>
+        /// 透過 cacheKey 取得 Redis 快取
+        /// </summary>
+        /// <param name="cacheKey">Redis key (string)</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<string>> GetCacheDataByKey(string cacheKey)
+        {
+            // Cache key found, short-circuit the action and return cached data
+            byte[]? cachedData = await this._cache.GetAsync(cacheKey);
+            if (cachedData is null)
+            {
+                return new List<string>();
+            }
+            var cachedDataString = Encoding.UTF8.GetString(cachedData);
+            var result = JsonSerializer.Deserialize<IEnumerable<string>>(cachedDataString);
+            return result ?? new List<string>();
         }
 
         /// <summary>

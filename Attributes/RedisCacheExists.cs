@@ -1,8 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Distributed;
-using System.Text;
-using System.Text.Json;
 
 namespace MyAttributes
 {
@@ -34,15 +31,8 @@ namespace MyAttributes
             }
             else
             {
-                // Cache key found, short-circuit the action and return cached data
-                byte[]? cachedData = await cache.GetAsync(_cacheKey);
-                if (cachedData is not null)
-                {
-                    var cachedDataString = Encoding.UTF8.GetString(cachedData);
-                    var result = JsonSerializer.Deserialize<IEnumerable<string>>(cachedDataString);
-                    context.Result = new OkObjectResult(result ?? new List<string>());
-                    return;
-                }
+                context.HttpContext.Items["IsRedisKeyExists"] = true;
+                await next();
             }
         }
     }
