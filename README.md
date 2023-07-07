@@ -28,7 +28,7 @@ RedisCacheExistsAttribute 實作，與套用到 controller 上，如果存在就
 
 ### CUD 三個都要刪掉 GetCountryAsync 的 redis key/value
 
-檢查此 key 是否存在都可用這個 `RedisCacheExistsAttribute`，若存在則用 DeleteCacheDataByKey Servic 刪除 GetCountryAsync 的 redis key/value。
+檢查此 key 是否存在都可用這個 `RedisCacheExistsAttribute`，若存在則用 DeleteCacheDataByKey Service 刪除 GetCountryAsync 的 redis key/value。
 
 `Filters/ RedisCacheExists.cs`
 ``` c#
