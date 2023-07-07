@@ -9,7 +9,7 @@ namespace MyAttributes
 
         public RedisCacheExistsAttribute()
         {
-            _cacheKey = string.Empty; // 初始值设为空字符串
+            _cacheKey = string.Empty; // 初始值設為空字符串
         }
 
         public string CacheKey
