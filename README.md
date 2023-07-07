@@ -94,3 +94,7 @@ Controller 設定可以參考這個地方
 
 # redis 緩存狀態圖
 ![image](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/750c1235-9b6e-4d6e-a521-493e8d019068)
+
+# mysql world DB
+![image](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/5e30a4a2-bb37-4f41-8acd-274be134739e)
+
