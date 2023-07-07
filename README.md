@@ -104,3 +104,5 @@ Controller 設定可以參考這個地方
 # API 提升效能的方法
 ![upload_4cd20cd0a99414d9783cb9544f50720b](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/ff99d93b-98af-49c5-877e-bf10f7a85dc5)
 
+**有此練習的源起要感謝同事孟謙大大的出題www還有感謝公司的空檔允許我練習www**
+
