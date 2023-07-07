@@ -27,6 +27,7 @@ RedisCacheExistsAttribute 實作，與套用到 controller 上，如果存在就
 刪除 DB 該資料表項目的 API。(刪除後要刪掉 GetCountryAsync 的 redis key/value)。
 
 ![image](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/6fb17f60-e9a5-4b85-8269-fea9b095ffd5)
+![image](https://github.com/kiwijang/RedisCacheExistsAttr/assets/21300139/6712ede8-9a2e-48ee-aa6c-a43059babb70)
 
 
 ### CUD 三個都要刪掉 GetCountryAsync 的 redis key/value
