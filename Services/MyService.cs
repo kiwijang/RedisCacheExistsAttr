@@ -10,6 +10,7 @@ namespace dooo.Services
     {
         Task<IEnumerable<string>> GetCountryAsync(string apiKey);
         Task<IEnumerable<string>> GetCacheDataByKey(string apiKey);
+        void DeleteCacheDataByKey(string cacheKey);
     }
 
     public class MyService : IMyService
@@ -48,6 +49,16 @@ namespace dooo.Services
             var cachedDataString = Encoding.UTF8.GetString(cachedData);
             var result = JsonSerializer.Deserialize<IEnumerable<string>>(cachedDataString);
             return result ?? new List<string>();
+        }
+
+        /// <summary>
+        /// 透過 cacheKey 刪除 Redis 緩存
+        /// </summary>
+        /// <param name="cacheKey"></param>
+        /// <returns></returns>
+        public async void DeleteCacheDataByKey(string cacheKey)
+        {
+            await this._cache.RemoveAsync(cacheKey);
         }
 
         /// <summary>
