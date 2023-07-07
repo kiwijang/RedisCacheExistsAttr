@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using dooo.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
@@ -12,7 +8,7 @@ namespace dooo.Services
 {
     public interface IMyService
     {
-        Task<IEnumerable<string>> GetCountryAsync();
+        Task<IEnumerable<string>> GetCountryAsync(string apiKey);
     }
 
     public class MyService : IMyService
@@ -26,42 +22,47 @@ namespace dooo.Services
             this._cache = cache;
         }
 
-        public async Task<IEnumerable<string>> GetCountryAsync()
+        public async Task<IEnumerable<string>> GetCountryAsync(string apiKey)
         {
-            string apiId = "GetCountryAsync";
-            if (this._cache.Get(apiId) is null)
-            {
-                // 撈 DB
-                var result = await this._context.Countries.Select(x => x.Code).ToListAsync();
-                // 存入 Redis 並設定兩小時過期
+            // 撈 DB
+            var result = await this._context.Countries.Select(x => x.Code).ToListAsync();
+            // 設定到 redis
+            await this._setToRedisAsync(result, apiKey);
+            return result;
+        }
 
-                // https://www.c-sharpcorner.com/article/easily-use-redis-cache-in-asp-net-6-0-web-api/
-                // Serializing the data
-                string cachedDataString = JsonSerializer.Serialize(result);
-                var dataToCache = Encoding.UTF8.GetBytes(cachedDataString);
+        /// <summary>
+        /// 物件轉換成 byte[]
+        /// </summary>
+        /// <param name="obj">物件，如 List</param>
+        /// <returns></returns>
+        private byte[] _objTobyteArray(object obj)
+        {
+            // Serializing the data
+            string cachedDataString = JsonSerializer.Serialize(obj);
+            byte[] dataToCache = Encoding.UTF8.GetBytes(cachedDataString);
+            return dataToCache;
+        }
 
-                // Setting up the cache options
-                DistributedCacheEntryOptions options = new DistributedCacheEntryOptions()
-                    .SetAbsoluteExpiration(DateTime.Now.AddHours(2)); // 兩小時後過期
+        /// <summary>
+        /// 設定 redis key(string)/value(byte[])
+        /// </summary>
+        /// <param name="obj">物件，如 List</param>
+        /// <param name="apiKey">Redis key 這邊請用 controller api 方法命名</param>
+        /// <returns></returns>
+        private async Task _setToRedisAsync(object obj, string apiKey)
+        {
+            // 存入 Redis 並設定兩小時過期
+            // https://www.c-sharpcorner.com/article/easily-use-redis-cache-in-asp-net-6-0-web-api/
+            // Serializing the data
+            byte[] dataToCache = this._objTobyteArray(obj);
 
-                // Add the data into the cache
-                await this._cache.SetAsync(apiId, dataToCache, options);
-                return result;
-            }
-            else
-            {
-                // 撈 Redis
-                // If the data is found in the cache, encode and deserialize cached data.
-                byte[]? cachedData = await this._cache.GetAsync(apiId);
-                if (cachedData is not null)
-                {
-                    var cachedDataString = Encoding.UTF8.GetString(cachedData);
-                    var result = JsonSerializer.Deserialize<IEnumerable<string>>(cachedDataString);
-                    return result ?? new List<string>();
-                }
-            }
+            // Setting up the cache options
+            DistributedCacheEntryOptions options = new DistributedCacheEntryOptions()
+                .SetAbsoluteExpiration(DateTime.Now.AddHours(2)); // 兩小時後過期
 
-            return new List<string>();
+            // Add the data into the cache
+            await this._cache.SetAsync(apiKey, dataToCache, options);
         }
     }
 }

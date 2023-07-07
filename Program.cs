@@ -1,6 +1,7 @@
 using dooo.Models;
 using dooo.Services;
 using Microsoft.EntityFrameworkCore;
+using MyAttributes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +22,12 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<WorldContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection") ?? ""));
 
-var c = builder.Configuration.GetConnectionString("RedisCacheUrl");
-builder.Services.AddStackExchangeRedisCache(options => { options.Configuration = c; });
+builder.Services.AddStackExchangeRedisCache(options => { options.Configuration = builder.Configuration.GetConnectionString("RedisCacheUrl"); });
+
+builder.Services.AddScoped<RedisCacheExistsAttribute>(provider =>
+{
+    return new RedisCacheExistsAttribute();
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -1,6 +1,7 @@
 using dooo.Models;
 using dooo.Services;
 using Microsoft.AspNetCore.Mvc;
+using MyAttributes;
 
 namespace dooo.Controllers;
 
@@ -18,8 +19,9 @@ public class CountryController : ControllerBase
     }
 
     [HttpGet(Name = "Country")]
+    [RedisCacheExists(CacheKey = "GetCountryAsync")]
     public async Task<IEnumerable<string>> Get()
     {
-        return await this._myService.GetCountryAsync();
+        return await this._myService.GetCountryAsync("GetCountryAsync");
     }
 }
