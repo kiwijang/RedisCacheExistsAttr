@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace dooo.Models;
 
@@ -34,8 +36,13 @@ public partial class Country
     public int? Capital { get; set; }
 
     public string Code2 { get; set; } = null!;
-
+    [JsonIgnore]
     public virtual ICollection<City> Cities { get; set; } = new List<City>();
-
+    [JsonIgnore]
     public virtual ICollection<Countrylanguage> Countrylanguages { get; set; } = new List<Countrylanguage>();
+
+    public static explicit operator Country(PropertyValues v)
+    {
+        throw new NotImplementedException();
+    }
 }

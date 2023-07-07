@@ -8,9 +8,15 @@ namespace dooo.Services
 {
     public interface IMyService
     {
+        //DB
+        Task CreateCountryAsync(string apiKey, Country entity);
         Task<IEnumerable<string>> GetCountryAsync(string apiKey);
-        Task<IEnumerable<string>> GetCacheDataByKey(string apiKey);
-        void DeleteCacheDataByKey(string cacheKey);
+        Task UpdateCountryAsync(string apiKey, Country entity);
+        Task DeleteCountryAsync(string apiKey, string code);
+
+        //redis
+        Task DeleteCacheDataByKey(string cacheKey);
+        Task<IEnumerable<string>> GetCacheDataByKey(string cacheKey);
     }
 
     public class MyService : IMyService
@@ -31,6 +37,70 @@ namespace dooo.Services
             // 設定到 redis
             await this._setToRedisAsync(result, apiKey);
             return result;
+        }
+
+        public async Task DeleteCountryAsync(string apiKey, string code)
+        {
+            // 撈 DB
+            var parent =
+            this._context.Countries.Include(p => p.Cities).Include(p => p.Countrylanguages).FirstOrDefault(p => p.Code == code);
+            if (parent is null) return;
+
+            this._context.Cities.RemoveRange(parent.Cities);
+            this._context.Countrylanguages.RemoveRange(parent.Countrylanguages);
+            this._context.Countries.Remove(parent);
+            var result = await this._context.SaveChangesAsync();
+
+            return;
+        }
+
+        public async Task UpdateCountryAsync(string apiKey, Country entity)
+        {
+            var updEntity = await this._context.Countries.FindAsync(entity.Code);
+            if (updEntity is null) return;
+
+            updEntity.Capital = entity.Capital;
+            updEntity.Code2 = entity.Code2;
+            updEntity.Continent = entity.Continent;
+            updEntity.Gnp = entity.Gnp;
+            updEntity.Gnpold = entity.Gnpold;
+            updEntity.GovernmentForm = entity.GovernmentForm;
+            updEntity.HeadOfState = entity.HeadOfState;
+            updEntity.IndepYear = entity.IndepYear;
+            updEntity.LifeExpectancy = entity.LifeExpectancy;
+            updEntity.LocalName = entity.LocalName;
+            updEntity.Name = entity.Name;
+            updEntity.Population = entity.Population;
+            updEntity.Region = entity.Region;
+            updEntity.SurfaceArea = entity.SurfaceArea;
+
+            this._context.Countries.Update(updEntity);
+            // https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations#resolving-concurrency-conflicts
+            await this._context.SaveChangesAsync();
+        }
+
+        public async Task CreateCountryAsync(string apiKey, Country entity)
+        {
+            var updEntity = new Country();
+            updEntity.Capital = entity.Capital;
+            updEntity.Code = entity.Code;
+            updEntity.Code2 = entity.Code2;
+            updEntity.Continent = entity.Continent;
+            updEntity.Gnp = entity.Gnp;
+            updEntity.Gnpold = entity.Gnpold;
+            updEntity.GovernmentForm = entity.GovernmentForm;
+            updEntity.HeadOfState = entity.HeadOfState;
+            updEntity.IndepYear = entity.IndepYear;
+            updEntity.LifeExpectancy = entity.LifeExpectancy;
+            updEntity.LocalName = entity.LocalName;
+            updEntity.Name = entity.Name;
+            updEntity.Population = entity.Population;
+            updEntity.Region = entity.Region;
+            updEntity.SurfaceArea = entity.SurfaceArea;
+            await this._context.Countries.AddAsync(updEntity);
+            var result = await this._context.SaveChangesAsync();
+
+            return;
         }
 
         /// <summary>
@@ -56,7 +126,7 @@ namespace dooo.Services
         /// </summary>
         /// <param name="cacheKey"></param>
         /// <returns></returns>
-        public async void DeleteCacheDataByKey(string cacheKey)
+        public async Task DeleteCacheDataByKey(string cacheKey)
         {
             await this._cache.RemoveAsync(cacheKey);
         }
