@@ -8,7 +8,7 @@ RedisCacheExistsAttribute 實作，與套用到 controller 上，如果存在就
 
 ## redis key 命名方式
 
-是以 Service 名稱為 key 值。(因為正常一個 Controller 只會有一個 Service)
+是以 Service 名稱為 key 值。(因為大多一個 Controller 只會有一個 Service)
 
 ## 為什麼 Redis 緩存設定兩小時過期
 
